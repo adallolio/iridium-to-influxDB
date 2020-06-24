@@ -1,46 +1,5 @@
 <?php
 
-class CSVFile
-{
-    public $filename;
-    public $contents;
-
-    public static $csvDir = "/home/autonaut/java_to_influx/iridium";
-
-    public function __construct(string $filename, string $contents)
-    {
-        $this->filename = $filename;
-        $this->contents = $contents;
-    }
-
-    public function save()
-    {
-        file_put_contents($this->getPath(), "{$this->contents}\n");
-    }
-
-    public static function fromMatches(array $matches): CSVFile
-    {
-        $type = $matches["type"];
-        unset($matches["type"]);
-
-        $matches = getNamedCapturesFromMatches($matches);
-
-        $csv =
-        implode(",", array_keys($matches))
-        . "\n"
-        . implode(",", $matches);
-
-        isset($_GET["debug"]) && error_log($csv);
-
-        return new CSVFile("{$type}.csv", $csv);
-    }
-
-    public function getPath()
-    {
-        return self::$csvDir . "/" . $this->filename;
-    }
-}
-
 if (isset($_GET["debug"])) {
     $message =
     #"(R) 12:17:42/63.872890,8.640409/b:136/c:98/s:0.00/sat:6/pp:24/cp:6/s:S/001011";
@@ -61,88 +20,32 @@ if (isset($_GET["debug"])) {
     # Format: (R) 12:17:42/63.872890,8.640409/b:136/c:98/s:0.00/sat:6/pp:24/cp:6/s:S/001011
 }
 
-$messageType = preg_replace('/^\((\w+).*$/', '$1', $message);
-
-isset($json) && error_log("JSON:         {$json}");
-isset($data) && error_log("Hex data:     {$data}");
+#isset($json) && error_log("JSON:         {$json}");
+#isset($data) && error_log("Hex data:     {$data}");
 isset($message) && error_log("Message:      {$message}");
-isset($messageType) && error_log("Message type: {$messageType}");
 
-switch ($messageType) {
-    case "R":
-        $csvFile = handlePeriodicalReport($message);
-        $csvFilePath = $csvFile->getPath();
-        $table = strtolower($messageType) . "_iridium";
-        $firstCSVLine = explode("\n", $csvFile->contents)[0];
-        $columns = explode(",", $firstCSVLine, 2)[1];
-        $params = "--input {$csvFilePath} --user autonaut --password ntnu_autonaut --dbname AUTONAUT --metricname {$table} --fieldcolumns {$columns}";
-        break;
-
-    case "NAV":
-        $csvFile = handleNavigationStatus($message);
-        $csvFilePath = $csvFile->getPath();
-        $table = strtolower($messageType) . "_iridium";
-        $firstCSVLine = explode("\n", $csvFile->contents)[0];
-        $columns = explode(",", $firstCSVLine, 2)[1];
-        $params = "--input {$csvFilePath} --user autonaut --password ntnu_autonaut --dbname AUTONAUT --metricname {$table} --fieldcolumns {$columns}";
-        break;
-
-    case "CTD":
-        $csvFile = handleCTD($message);
-        $csvFilePath = $csvFile->getPath();
-        $table = strtolower($messageType) . "_iridium";
-        $firstCSVLine = explode("\n", $csvFile->contents)[0];
-        $columns = explode(",", $firstCSVLine, 2)[1];
-        $params = "--input {$csvFilePath} --user autonaut --password ntnu_autonaut --dbname AUTONAUT --metricname {$table} --fieldcolumns {$columns}";
-        break;
-
-    case "ECO":
-        $csvFile = handleECO($message);
-        $csvFilePath = $csvFile->getPath();
-        $table = strtolower($messageType) . "_iridium";
-        $firstCSVLine = explode("\n", $csvFile->contents)[0];
-        $columns = explode(",", $firstCSVLine, 2)[1];
-        $params = "--input {$csvFilePath} --user autonaut --password ntnu_autonaut --dbname AUTONAUT --metricname {$table} --fieldcolumns {$columns}";
-        break;
-
-    case "OPT":
-        $csvFile = handleOPT($message);
-        $csvFilePath = $csvFile->getPath();
-        $table = strtolower($messageType) . "_iridium";
-        $firstCSVLine = explode("\n", $csvFile->contents)[0];
-        $columns = explode(",", $firstCSVLine, 2)[1];
-        $params = "--input {$csvFilePath} --user autonaut --password ntnu_autonaut --dbname AUTONAUT --metricname {$table} --fieldcolumns {$columns}";
-        break;
-
-    case "TBL":
-        $csvFile = handleTBL($message);
-        $csvFilePath = $csvFile->getPath();
-        $table = strtolower($messageType) . "_iridium";
-        $firstCSVLine = explode("\n", $csvFile->contents)[0];
-        $columns = explode(",", $firstCSVLine, 2)[1];
-        $params = "--input {$csvFilePath} --user autonaut --password ntnu_autonaut --dbname AUTONAUT --metricname {$table} --fieldcolumns {$columns}";
-        break;
-
-    case "ADCP":
-        $csvFile = handleADCP($message);
-        $csvFilePath = $csvFile->getPath();
-        $table = strtolower($messageType) . "_iridium";
-        $firstCSVLine = explode("\n", $csvFile->contents)[0];
-        $columns = explode(",", $firstCSVLine, 2)[1];
-        $params = "--input {$csvFilePath} --user autonaut --password ntnu_autonaut --dbname AUTONAUT --metricname {$table} --fieldcolumns {$columns}";
-        break;
-
-    default:
-        http_response_code(400);
-        break;
+try {
+    $csvFile = CSVFile::fromMessage($message);
+} catch (Exception $ex) {
+    http_response_code(400);
+    error_log($ex->getMessage());
+    exit($ex->getMessage());
 }
+$csvFilePath = $csvFile->getPath();
+$table = getInfluxDBTableFromMessage($message);
+$firstCSVLine = explode("\n", $csvFile->contents)[0];
+$columns = explode(",", $firstCSVLine, 2)[1];
+$params = "--input {$csvFilePath} --user autonaut --password ntnu_autonaut --dbname AUTONAUT --metricname {$table} --fieldcolumns {$columns}";
 
-if (isset($csvFile) && $csvFile && isset($params)) {
-    $csvFile->save();
-    #`./csv-to.py {$csvDir}/report.csv $bunchOfStuff`;
-    error_log("python /home/autonaut/java_to_influx/csv-to.py {$params}");
-    `python /home/autonaut/java_to_influx/csv-to.py {$params}`;
-}
+$csvFile->save();
+
+$cmd = "python /home/autonaut/java_to_influx/csv-to.py {$params}";
+#error_log($cmd);
+`{$cmd}`;
+
+#####################
+## Functions
+#####################
 
 function getIridiumJSON(): string
 {
@@ -170,9 +73,40 @@ function getMessageFromHexData(string $data): string
     return $message;
 }
 
-#####
-#####
-#####
+/**
+ * Drop integer indexed elements of the given matches array
+ * e.g. [0=>"a", "letter"=>"a"] => ["letter"=>"a"]
+ */
+function getNamedCapturesFromMatches(array $matches): array
+{
+    foreach ($matches as $key => $value) {
+        if (preg_match('/^\d+$/', $key)) {
+            unset($matches[$key]);
+        }
+    }
+    return $matches;
+}
+
+/**
+ * Make a suitable table name, e.g. "(ECO-P) …" => "eco_iridium"
+ */
+function getInfluxDBTableFromMessage(string $message): string
+{
+    $messageType = getMessageTypeFromMessage($message);
+    return strtolower($messageType) . "_iridium";
+}
+
+/**
+ * Extract message type from message, e.g. "(ECO-P) …" => "ECO"
+ */
+function getMessageTypeFromMessage(string $message): string
+{
+    return preg_replace('/^\((\w+).*$/', '$1', $message);
+}
+
+#####################
+## Message handlers
+#####################
 
 function handlePeriodicalReport(string $message): CSVFile
 {
@@ -292,12 +226,94 @@ function handleADCP(string $message): CSVFile
     ;
 }
 
-function getNamedCapturesFromMatches(array $matches): array
+#####################
+## Classes
+#####################
+
+class CSVFile
 {
-    foreach ($matches as $key => $value) {
-        if (preg_match('/^\d+$/', $key)) {
-            unset($matches[$key]);
+    public $filename;
+    public $contents;
+
+    public static $csvDir = "/home/autonaut/java_to_influx/iridium";
+
+    /**
+     * @param string $filename filename, excluding directories
+     *                         (e.g. foo.csv)
+     * @param string $contents text content to store in the CSV file
+     *                         (e.g. id,name\n1,NTNU)
+     */
+    public function __construct(string $filename, string $contents)
+    {
+        $this->filename = $filename;
+        $this->contents = $contents;
+    }
+
+    /**
+     * Write contents to disk
+     */
+    public function save()
+    {
+        file_put_contents($this->getPath(), "{$this->contents}\n");
+    }
+
+    /**
+     * Get full path to the CSV file (e.g. /home/bar/foo.csv).
+     */
+    public function getPath(): string
+    {
+        return self::$csvDir . "/" . $this->filename;
+    }
+
+    /**
+     * Construct CSV from assoc. array using non-number keys as columns and
+     * values for the first row of data.
+     */
+    public static function fromMatches(array $matches): CSVFile
+    {
+        $type = $matches["type"];
+        unset($matches["type"]);
+
+        $matches = getNamedCapturesFromMatches($matches);
+
+        $csv =
+        implode(",", array_keys($matches))
+        . "\n"
+        . implode(",", $matches);
+
+        isset($_GET["debug"]) && error_log($csv);
+
+        return new CSVFile("{$type}.csv", $csv);
+    }
+
+    public static function fromMessage(string $message): CSVFile
+    {
+        $messageType = getMessageTypeFromMessage($message);
+
+        switch ($messageType) {
+            case "R":
+                return handlePeriodicalReport($message);
+
+            case "NAV":
+                return handleNavigationStatus($message);
+
+            case "CTD":
+                return handleCTD($message);
+
+            case "ECO":
+                return handleECO($message);
+
+            case "OPT":
+                return handleOPT($message);
+
+            case "TBL":
+                return handleTBL($message);
+
+            case "ADCP":
+                return handleADCP($message);
+
+            default:
+                throw new Exception("Unsupported messageType '{$messageType}'");
         }
     }
-    return $matches;
 }
