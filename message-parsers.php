@@ -59,7 +59,7 @@ function handleCTD(string $message): CSVFile
         . 'C:(?<C>[-\d.]+)/'
         . 'T:(?<T>[-\d.]+)/'
         . 'SS:(?<SS>[-\d.]+)/'
-        . 'D:(?<D>[-\d.]+)'
+        . 'D:(?<D>[-\d.]+)/'
         . 'P:(?<P>[-\d.]+)'
         . '$_', $message, $matches);
 
