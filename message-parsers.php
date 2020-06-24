@@ -1,0 +1,119 @@
+<?php
+
+function handlePeriodicalReport(string $message): CSVFile
+{
+    $matches = [];
+    preg_match('_^'
+        . '\((?<type>\w+)[^)]*\) '
+        . '(?<timestamp>[^/]{8})/'
+        . '(?<lat>[-\d. ]+),(?<lon>[-\d. ]+)/'
+        . 'b:(?<b>[-\d.]+)/'
+        . 'c:(?<c>[-\d.]+)/'
+        . 's:(?<s>[-\d.]+)/'
+        . 'sat:(?<sat>[-\d.]+)/'
+        . 'pp:(?<pp>[-\d.]+)/'
+        . 'cp:(?<cp>[-\d.]+)/'
+        . 's:(?<status>\w)/'
+        . '(?<relays>[01]+)'
+        . '$_', $message, $matches);
+
+    $matches["timestamp"] = date("Y-m-d ") . $matches["timestamp"];
+
+    return CSVFile::fromMatches($matches);
+}
+
+function handleNavigationStatus($message): CSVFile
+{
+    $matches = [];
+    preg_match('_^'
+        . '\((?<type>\w+).*\) '
+        . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
+        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . 'C:(?<C>[-\d.]+)/'
+        . 'dC:(?<dC>[-\d.]+)/'
+        . 'r:(?<r>[-\d.]+)/'
+        . 'th:(?<th>[-\d.]+)/'
+        . 'S:(?<S>[-\d.]+)/'
+        . 'aws:(?<aws>[-\d.]+)/'
+        . 'awd:(?<awd>[-\d.]+)'
+        . '$_', $message, $matches);
+
+    $matches = getNamedCapturesFromMatches($matches);
+    return CSVFile::fromMatches($matches);
+}
+
+function handleCTD(string $message): CSVFile
+{
+    $matches = [];
+    preg_match('_^'
+        . '\((?<type>\w+)[^)]*\) '
+        . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
+        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . 'S:(?<S>[-\d.]+)/'
+        . 'C:(?<C>[-\d.]+)/'
+        . 'T:(?<T>[-\d.]+)/'
+        . 'SS:(?<SS>[-\d.]+)/'
+        . 'D:(?<D>[-\d.]+)'
+        . '$_', $message, $matches);
+
+    $matches = getNamedCapturesFromMatches($matches);
+    return CSVFile::fromMatches($matches);
+}
+
+function handleECO(string $message): CSVFile
+{
+    $matches = [];
+    preg_match('_^'
+        . '\((?<type>\w+)[^)]*\) '
+        . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
+        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . 'FDOM:(?<FDOM>[-\d.]+)/'
+        . 'TU:(?<TU>[-\d.]+)/'
+        . 'CHLA:(?<CHLA>[-\d.]+)'
+        . '$_', $message, $matches);
+
+    $matches = getNamedCapturesFromMatches($matches);
+    return CSVFile::fromMatches($matches);
+}
+
+function handleOPT(string $message): CSVFile
+{
+    #(OPT) 2020/06/23 08:51:44/63.8728 8.6404/T:18.40/AS:98.87/DOX:289.87
+    $matches = [];
+    preg_match('_^'
+        . '\((?<type>\w+)[^)]*\) '
+        . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
+        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . 'T:(?<T>[-\d.]+)/'
+        . 'AS:(?<AS>[-\d.]+)/'
+        . 'DOX:(?<DOX>[-\d.]+)'
+        . '$_', $message, $matches);
+
+    $matches = getNamedCapturesFromMatches($matches);
+    return CSVFile::fromMatches($matches);
+}
+
+function handleTBL(string $message): CSVFile
+{
+    #
+    $matches = [];
+    preg_match('_^'
+        . '\((?<type>\w+)[^)]*\) '
+        . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
+        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . 'SN:(?<SN>[-\d]+)/'
+        . 'T:(?<T>[-\d.]+)/'
+        . 'ANL:(?<ANL>[-\d]+)/'
+        . 'PNL:(?<PNL>[-\d]+)/'
+        . 'RLF:(?<RLF>[-\d]+)/'
+        . 'RMA:(?<RMA>[-\d]+)'
+        . '$_', $message, $matches);
+
+    $matches = getNamedCapturesFromMatches($matches);
+    return CSVFile::fromMatches($matches);
+}
+
+function handleADCP(string $message): CSVFile
+{
+    ;
+}
