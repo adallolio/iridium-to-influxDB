@@ -13,6 +13,7 @@ function handlePeriodicalReport(string $message): CSVFile
         . 'sat:(?<sat>[-\d.]+)/'
         . 'pp:(?<pp>[-\d.]+)/'
         . 'cp:(?<cp>[-\d.]+)/'
+        . 't:(?<t>[-\d.]+)/'
         . 's:(?<status>\w)/'
         . '(?<relays>[01]+)'
         . '$_', $message, $matches);
@@ -54,6 +55,7 @@ function handleCTD(string $message): CSVFile
         . 'T:(?<T>[-\d.]+)/'
         . 'SS:(?<SS>[-\d.]+)/'
         . 'D:(?<D>[-\d.]+)'
+        . 'P:(?<P>[-\d.]+)'
         . '$_', $message, $matches);
 
     $matches = getNamedCapturesFromMatches($matches);
