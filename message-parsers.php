@@ -15,7 +15,12 @@ function handlePeriodicalReport(string $message): CSVFile
         . 'cp:(?<cp>[-\d.]+)/'
         . 't:(?<t>[-\d.]+)/'
         . 's:(?<status>\w)/'
-        . '(?<relays>[01]+)'
+        . '(?<l2>[01])'
+        . '(?<l3>[01])'
+        . '(?<iridium>[01])'
+        . '(?<modem>[01])'
+        . '(?<pumps>[01])'
+        . '(?<vhf>[01])'
         . '$_', $message, $matches);
 
     $matches["timestamp"] = date("Y-m-d ") . $matches["timestamp"];
