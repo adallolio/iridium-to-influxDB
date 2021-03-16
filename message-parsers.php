@@ -7,7 +7,7 @@ function handlePeriodicalReport(string $message): CSVFile
         . '\((?<type>\w+)[^)]*\) '
         . '((?<last>last) )?'
         . '(?<timestamp>[^/]{8})/'
-        . '((?<lat>[-\d. ]+),(?<)lon>[-\d. ]+)/?'
+        . '((?<lat>[-\d. ]+),(?<lon>[-\d. ]+)/)?'
         . 'b:(?<b>[-\d.]+)/'
         . 'c:(?<c>[-\d.]+)/'
         . 's:(?<s>[-\d.]+)/'
