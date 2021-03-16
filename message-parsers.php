@@ -5,8 +5,9 @@ function handlePeriodicalReport(string $message): CSVFile
     $matches = [];
     preg_match('_^'
         . '\((?<type>\w+)[^)]*\) '
+        . '((?<last>last) )?'
         . '(?<timestamp>[^/]{8})/'
-        . '(?<lat>[-\d. ]+),(?<lon>[-\d. ]+)/'
+        . '((?<lat>[-\d. ]+),(?<)lon>[-\d. ]+)/?'
         . 'b:(?<b>[-\d.]+)/'
         . 'c:(?<c>[-\d.]+)/'
         . 's:(?<s>[-\d.]+)/'
@@ -33,8 +34,9 @@ function handleNavigationStatus($message): CSVFile
     $matches = [];
     preg_match('_^'
         . '\((?<type>\w+).*\) '
+        . '((?<last>last) )?'
         . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
-        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . '((?<lat>[-\d.]+) (?<lon>[-\d.]+)/)?'
         . 'C:(?<C>[-\d.]+)/'
         . 'dC:(?<dC>[-\d.]+)/'
         . 'r:(?<r>[-\d.]+)/'
@@ -53,8 +55,9 @@ function handleCTD(string $message): CSVFile
     $matches = [];
     preg_match('_^'
         . '\((?<type>\w+)[^)]*\) '
+        . '((?<last>last) )?'
         . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
-        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . '((?<lat>[-\d.]+) (?<lon>[-\d.]+)/)?'
         . 'S:(?<S>[-\d.]+)/'
         . 'C:(?<C>[-\d.]+)/'
         . 'T:(?<T>[-\d.]+)/'
@@ -72,8 +75,9 @@ function handleECO(string $message): CSVFile
     $matches = [];
     preg_match('_^'
         . '\((?<type>\w+)[^)]*\) '
+        . '((?<last>last) )?'
         . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
-        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . '((?<lat>[-\d.]+) (?<lon>[-\d.]+)/)?'
         . 'FDOM:(?<FDOM>[-\d.]+)/'
         . 'TU:(?<TU>[-\d.]+)/'
         . 'CHLA:(?<CHLA>[-\d.]+)'
@@ -89,8 +93,9 @@ function handleOPT(string $message): CSVFile
     $matches = [];
     preg_match('_^'
         . '\((?<type>\w+)[^)]*\) '
+        . '((?<last>last) )?'
         . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
-        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . '((?<lat>[-\d.]+) (?<lon>[-\d.]+)/)?'
         . 'T:(?<T>[-\d.]+)/'
         . 'AS:(?<AS>[-\d.]+)/'
         . 'DOX:(?<DOX>[-\d.]+)'
@@ -106,8 +111,9 @@ function handleTBL(string $message): CSVFile
     $matches = [];
     preg_match('_^'
         . '\((?<type>\w+)[^)]*\) '
+        . '((?<last>last) )?'
         . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
-        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . '((?<lat>[-\d.]+) (?<lon>[-\d.]+)/)?'
         . 'SN:(?<SN>[-\d]+)/'
         . 'T:(?<T>[-\d.]+)/'
         . 'ANL:(?<ANL>[-\d]+)/'
@@ -122,5 +128,19 @@ function handleTBL(string $message): CSVFile
 
 function handleADCP(string $message): CSVFile
 {
-    ;
+    # (ADCP) 2021-03-11 22:28:59/63.9020 8.6376/DP:4.500/S:0.221/D:-0.69
+    # depth (DP), speed (S) and dir (D)
+    $matches = [];
+    preg_match('_^'
+        . '\((?<type>\w+)[^)]*\) '
+        . '((?<last>last) )?'
+        . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
+        . '((?<lat>[-\d.]+) (?<lon>[-\d.]+)/)?'
+        . 'DP:(?<depth>[-\d.]+)/'
+        . 'S:(?<speed>[-\d.]+)/'
+        . 'D:(?<dir>[-\d.]+)'
+        . '$_', $message, $matches);
+
+    $matches = getNamedCapturesFromMatches($matches);
+    return CSVFile::fromMatches($matches);
 }
