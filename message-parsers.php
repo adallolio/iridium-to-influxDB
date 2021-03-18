@@ -83,6 +83,38 @@ function handleECO(string $message): CSVFile
     return CSVFile::fromMatches($matches);
 }
 
+function handlePAR(string $message): CSVFile
+{
+    $matches = [];
+    preg_match('_^'
+        . '\((?<type>\w+)[^)]*\) '
+        . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
+        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . 'PAR:(?<PAR>[-\d.]+)'
+        . '$_', $message, $matches);
+
+    $matches = getNamedCapturesFromMatches($matches);
+    return CSVFile::fromMatches($matches);
+}
+
+function handleRadiation(string $message): CSVFile
+{
+    $matches = [];
+    preg_match('_^'
+        . '\((?<type>\w+)[^)]*\) '
+        . '(?<lat>[-\d.]+) (?<lon>[-\d.]+)/'
+        . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+)/'
+        . 'PAR:(?<PAR>[-\d.]+)/'
+        . '(?<timestamp_a>\d{4}-\d{2}-\d{2} [^/]+)/'
+        . 'FDOM:(?<FDOM>[-\d.]+)/'
+        . 'TU:(?<TU>[-\d.]+)/'
+        . 'CHLA:(?<CHLA>[-\d.]+)'
+        . '$_', $message, $matches);
+
+    $matches = getNamedCapturesFromMatches($matches);
+    return CSVFile::fromMatches($matches);
+}
+
 function handleOPT(string $message): CSVFile
 {
     #(OPT) 2020/06/23 08:51:44/63.8728 8.6404/T:18.40/AS:98.87/DOX:289.87

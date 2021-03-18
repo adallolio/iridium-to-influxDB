@@ -73,6 +73,12 @@ class CSVFile
             case "ECO":
                 return handleECO($message);
 
+            case "PAR":
+                return handlePAR($message);
+
+            case "RAD":
+                return handleRadiation($message);
+
             case "OPT":
                 return handleOPT($message);
 
