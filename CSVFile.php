@@ -44,12 +44,19 @@ class CSVFile
         $type = $matches["type"];
         unset($matches["type"]);
 
+        $last = $matches["last"];
+        unset($matches["last"]);
+        if ($last) {
+            $matches["lat"] = "0.0";
+            $matches["lon"] = "0.0";
+        }
+
         $matches = getNamedCapturesFromMatches($matches);
 
         $csv =
-        implode(",", array_keys($matches))
-        . "\n"
-        . implode(",", $matches);
+            implode(",", array_keys($matches))
+            . "\n"
+            . implode(",", $matches);
 
         isset($_GET["debug"]) && error_log($csv);
 
