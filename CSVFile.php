@@ -94,6 +94,9 @@ class CSVFile
 
             case "ADCP":
                 return handleADCP($message);
+            
+            case "A":
+                return handleALERT($message);
 
             default:
                 throw new Exception("Unsupported messageType '{$messageType}'");

@@ -176,3 +176,14 @@ function handleADCP(string $message): CSVFile
     $matches = getNamedCapturesFromMatches($matches);
     return CSVFile::fromMatches($matches);
 }
+
+function handleALERT(string $message)
+{
+    $cmd = "curl -X POST https://textbelt.com/text \
+    --data-urlencode phone='+4741308854' \
+    --data-urlencode message='{$message}' \
+    -d key=20e7455c22ceff6a62e27bea0faada22c6d7359bYLqWKf37hufDNELfu1rE2Yr9F";
+    #error_log($cmd);
+    # Execute the command in the shell
+    `{$cmd}`;
+}
