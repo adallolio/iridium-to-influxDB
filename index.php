@@ -43,7 +43,7 @@ $csvFilePath = $csvFile->getPath();
 $table = getInfluxDBTableFromMessage($message);
 $firstCSVLine = explode("\n", $csvFile->contents)[0];
 $columns = explode(",", $firstCSVLine, 2)[1];
-$params = "--input {$csvFilePath} --user autonaut --password ntnu_autonaut --dbname AUTONAUT --metricname {$table} --fieldcolumns {$columns}";
+$params = "--input {$csvFilePath} --user autonaut --password autonaut_influx --dbname AUTONAUT --metricname {$table} --fieldcolumns {$columns}";
 
 $csvFile->save();
 
