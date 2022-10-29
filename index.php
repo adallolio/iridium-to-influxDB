@@ -41,6 +41,9 @@ try {
 }
 $csvFilePath = $csvFile->getPath();
 $table = getInfluxDBTableFromMessage($message);
+if($table=="r"){
+  $table = "r_new";
+}
 $firstCSVLine = explode("\n", $csvFile->contents)[0];
 $columns = explode(",", $firstCSVLine, 2)[1];
 $params = "--input {$csvFilePath} --user autonaut --password autonaut_influx --dbname AUTONAUT --metricname {$table} --fieldcolumns {$columns}";

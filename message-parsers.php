@@ -8,12 +8,12 @@ function handlePeriodicalReport(string $message): CSVFile
         . '((?<last>last) )?'
         . '(?<timestamp>[^/]{8})/'
         . '((?<lat>[-\d. ]+),(?<lon>[-\d. ]+)/)?'
-        . 'b:(?<b>[-\d.]+)/'
+        . 'b:(?<bBS1>[-\d. ]+),(?<bBS2>[-\d. ]+)/'
         . 'c:(?<c>[-\d.]+)/'
         . 's:(?<s>[-\d.]+)/'
         . 'sat:(?<sat>[-\d.]+)/'
-        . 'pp:(?<pp>[-\d.]+)/'
-        . 'cp:(?<cp>[-\d.]+)/'
+        . 'pp:(?<ppBS1>[-\d. ]+),(?<ppBS2>[-\d. ]+)/'
+        . 'cp:(?<cpBS1>[-\d. ]+),(?<cpBS2>[-\d. ]+)/'
         . 't:(?<t>[-\d.]+)/'
         . 's:(?<status>\w)/'
         . '(?<l2>[01])'
@@ -182,7 +182,7 @@ function handleALERT(string $message)
     $cmd = "curl -X POST https://textbelt.com/text \
     --data-urlencode phone='+4741308854' \
     --data-urlencode message='{$message}' \
-    -d key=20e7455c22ceff6a62e27bea0faada22c6d7359bYLqWKf37hufDNELfu1rE2Yr9F";
+    -d key=20e7455c";
     #error_log($cmd);
     # Execute the command in the shell
     `{$cmd}`;
@@ -190,8 +190,16 @@ function handleALERT(string $message)
     $cmd = "curl -X POST https://textbelt.com/text \
     --data-urlencode phone='+4793897684' \
     --data-urlencode message='{$message}' \
-    -d key=20e7455c22ceff6a62e27bea0faada22c6d7359bYLqWKf37hufDNELfu1rE2Yr9F";
+    -d key=20e7455c";
     #error_log($cmd);
+    # Execute the command in the shell
+    `{$cmd}`;
+
+    #$cmd = "curl -X POST https://textbelt.com/text \
+    #--data-urlencode phone='+4790945805' \
+    #--data-urlencode message='{$message}' \
+    #-d key=20e7455c";
+    ##error_log($cmd);
     # Execute the command in the shell
     `{$cmd}`;
 }
