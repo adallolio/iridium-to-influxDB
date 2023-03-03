@@ -96,10 +96,13 @@ class CSVFile
                 return handleADCP($message);
 
             default:
-		if($messageType=="A")
-		{
-			handleALERT($message);
-		}
+                if($messageType=="A")
+                {
+                    handleALERT($message);
+                } else
+                {// might be a XEOS report.
+                    return handleXEOS($message);
+                }
                 throw new Exception("Unsupported messageType '{$messageType}'");
         }
     }

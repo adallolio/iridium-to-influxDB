@@ -101,6 +101,32 @@ function handlePAR(string $message): CSVFile
     return CSVFile::fromMatches($matches);
 }
 
+function handleXEOS(string $message): CSVFile
+{
+    // desired: 2022-12-08 09:36:16
+    // xeos: 02231300
+    $date_xeos = strtok($message, ',');
+    $year = date("Y");
+    $date = $year.'-'.$date_xeos[0].$date_xeos[1].'-'.$date_xeos[2].$date_xeos[3].' '.$date_xeos[4].$date_xeos[5].':'.$date_xeos[6].$date_xeos[7].':00';
+    if (substr($message, 0, strlen($date_xeos)) == $date_xeos) {
+        $message = substr($message, strlen($date_xeos));
+    }
+    $message = $date.$message;
+
+    $matches = [];
+    preg_match('_^'
+    . '((?<last>last) )?'
+    . '(?<timestamp>\d{4}-\d{2}-\d{2} [^/]+),'//'(?<timestamp>\d{8}),'
+    . '(?<type>\w), '
+    . '(?<lat>[-\d.]+) (?<lon>[-\d.]+) '
+    . '(?<snr>[-\d.]+) '
+    . '(?<batt>[-\d.]+)'
+    . '$_', $message, $matches);
+
+    $matches = getNamedCapturesFromMatches($matches);
+    return CSVFile::fromMatches($matches);
+}
+
 function handleRadiation(string $message): CSVFile
 {
     $matches = [];

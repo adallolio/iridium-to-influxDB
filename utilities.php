@@ -46,7 +46,10 @@ function getNamedCapturesFromMatches(array $matches): array
 function getInfluxDBTableFromMessage(string $message): string
 {
     $messageType = getMessageTypeFromMessage($message);
-    return strtolower($messageType) . "_iridium";
+    if($messageType!="R" && $messageType!="NAV" && $messageType!="CTD" && $messageType!="ECO" && $messageType!="PAR" && $messageType!="RAD" && $messageType!="OPT" && $messageType!="TBL" && $messageType!="ADCP" && $messageType!="A")
+        return "xeos";
+    else
+        return strtolower($messageType) . "_iridium";
 }
 
 /**
