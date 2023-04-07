@@ -68,7 +68,7 @@ class CSVFile
         $messageType = getMessageTypeFromMessage($message);
 
         switch ($messageType) {
-	    case "R":
+            case "R":
                 return handlePeriodicalReport($message);
 
             case "NAV":
@@ -96,14 +96,7 @@ class CSVFile
                 return handleADCP($message);
 
             default:
-                if($messageType=="A")
-                {
-                    handleALERT($message);
-                } else
-                {// might be a XEOS report.
-                    return handleXEOS($message);
-                }
-                throw new Exception("Unsupported messageType '{$messageType}'");
+                return handleXEOS($message);
         }
     }
 }

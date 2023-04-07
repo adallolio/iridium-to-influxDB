@@ -1,5 +1,47 @@
 <?php
 
+function checkAlert(string $message)
+{
+    $message_type = preg_replace('/^\((\w+).*$/', '$1', $message);
+
+    if ($message_type && $message_type == "A") {
+        $cmd = "curl -X POST https://textbelt.com/text \
+        --data-urlencode phone='+4741308854' \
+        --data-urlencode message='{$message}' \
+        -d key=20e7455c";
+        #error_log($cmd);
+        # Execute the command in the shell
+	// `{$cmd}`;
+
+
+        $cmd = "curl -X POST https://textbelt.com/text \
+        --data-urlencode phone='+4791536919' \
+        --data-urlencode message='{$message}' \
+        -d key=20e7455c";
+        #error_log($cmd);
+        # Execute the command in the shell
+        // `{$cmd}`;
+
+        #$cmd = "curl -X POST https://textbelt.com/text \
+        #--data-urlencode phone='+4790945805' \
+        #--data-urlencode message='{$message}' \
+        #-d key=20e7455c";
+        ##error_log($cmd);
+        # Execute the command in the shell
+        // `{$cmd}`;
+
+        return true;
+    } else
+    {
+	return false;
+    }
+}
+
+function checkCOLAV(string $message): bool
+{
+	return false !== strpos($message,"COLAV");
+}
+
 function getIridiumJSON(): string
 {
     return file_get_contents('php://input');
@@ -7,23 +49,13 @@ function getIridiumJSON(): string
 
 function getHexDataFromIridiumJSON(string $json): string
 {
-    return json_decode($json, true)["data"];
-}
-
-function getMessageFromHexData(string $data): string
-{
-    $numbersOfCharsInData = strlen($data) / 2;
-
-    $message = "";
-    for ($i = 0; $i < $numbersOfCharsInData; $i++) {
-        $byteInHex = $data[2 * $i] . $data[2 * $i + 1];
-
-        list($byte) = sscanf($byteInHex, "%2x");
-
-        $message .= chr($byte);
+    $ret = json_decode($json, true)["data"];
+    if ($ret === NULL){
+        error_log("could onot convert this to json: " . $json);
+        header("HTTP/1.1 500 Internal Server Error");
+        exit(1);
     }
-
-    return $message;
+    return $ret;
 }
 
 /**
