@@ -1,6 +1,6 @@
 <?php
-try{
+try {
     require __DIR__ . "/index.php";
-}catch (\Throwable $exception){
+} catch (\Throwable $exception) {
     error_log("Some exception happened", json_encode($e));
 }

@@ -103,9 +103,6 @@ function handlePAR(string $message): CSVFile
 
 function handleXEOS(string $message): CSVFile
 {
-    // Remove last 4 chars: \r\n
-    $message = substr($message, 0, -4);
-
     // xeos: 02231300
     // desired: 2022-12-08 09:36:16
     $date_xeos = strtok($message, ',');

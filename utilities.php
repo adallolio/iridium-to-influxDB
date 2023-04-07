@@ -1,45 +1,24 @@
 <?php
 
-function checkAlert(string $message)
+function isAlert(string $message): bool
 {
     $message_type = preg_replace('/^\((\w+).*$/', '$1', $message);
-
-    if ($message_type && $message_type == "A") {
-        $cmd = "curl -X POST https://textbelt.com/text \
-        --data-urlencode phone='+4741308854' \
-        --data-urlencode message='{$message}' \
-        -d key=20e7455c";
-        #error_log($cmd);
-        # Execute the command in the shell
-	// `{$cmd}`;
-
-
-        $cmd = "curl -X POST https://textbelt.com/text \
-        --data-urlencode phone='+4791536919' \
-        --data-urlencode message='{$message}' \
-        -d key=20e7455c";
-        #error_log($cmd);
-        # Execute the command in the shell
-        // `{$cmd}`;
-
-        #$cmd = "curl -X POST https://textbelt.com/text \
-        #--data-urlencode phone='+4790945805' \
-        #--data-urlencode message='{$message}' \
-        #-d key=20e7455c";
-        ##error_log($cmd);
-        # Execute the command in the shell
-        // `{$cmd}`;
-
-        return true;
-    } else
-    {
-	return false;
-    }
+    return $message_type === "A";
 }
 
-function checkCOLAV(string $message): bool
+function sendSMS(string $phoneNumber, string $message): void
 {
-	return false !== strpos($message,"COLAV");
+    $cmd = "curl -X POST https://textbelt.com/text";
+    $cmd .= "--data-urlencode phone='$phoneNumber'";
+    $cmd .= "--data-urlencode message='$message'";
+    $cmd .= "-d key=20e7455c";
+
+    `$cmd`;
+}
+
+function isCOLAV(string $message): bool
+{
+    return 0 === strpos($message, "COLAV");
 }
 
 function getIridiumJSON(): string
@@ -49,13 +28,13 @@ function getIridiumJSON(): string
 
 function getHexDataFromIridiumJSON(string $json): string
 {
-    $ret = json_decode($json, true)["data"];
-    if ($ret === NULL){
+    $ret = json_decode($json, true);
+    if ($ret === NULL) {
         error_log("could onot convert this to json: " . $json);
         header("HTTP/1.1 500 Internal Server Error");
         exit(1);
     }
-    return $ret;
+    return $ret["data"];
 }
 
 /**
@@ -77,11 +56,24 @@ function getNamedCapturesFromMatches(array $matches): array
  */
 function getInfluxDBTableFromMessage(string $message): string
 {
-    $messageType = getMessageTypeFromMessage($message);
-    if($messageType!="R" && $messageType!="NAV" && $messageType!="CTD" && $messageType!="ECO" && $messageType!="PAR" && $messageType!="RAD" && $messageType!="OPT" && $messageType!="TBL" && $messageType!="ADCP" && $messageType!="A")
-        return "xeos";
-    else
-        return strtolower($messageType) . "_iridium";
+    $message_types = [
+        "R",
+        "NAV",
+        "CTD",
+        "ECO",
+        "PAR",
+        "RAD",
+        "OPT",
+        "TBL",
+        "ADCP",
+        "A"
+    ];
+
+    $message_type = getMessageTypeFromMessage($message);
+    if (in_array($message_type, $message_types, true)) {
+        return strtolower($message_type) . "_iridium";
+    }
+    return "xeos";
 }
 
 /**
