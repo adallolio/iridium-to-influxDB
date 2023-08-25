@@ -2,18 +2,21 @@
 
 function isAlert(string $message): bool
 {
-    $message_type = preg_replace('/^\((\w+).*$/', '$1', $message);
-    return $message_type === "A";
+    return getMessageTypeFromMessage($message) === "A";
 }
 
-function sendSMS(string $phoneNumber, string $message): void
+function sendSMS(string $phoneNumber, string $message)
 {
+	error_log("sending sms");
     $cmd = "curl -X POST https://textbelt.com/text";
+    $cmd .= " ";
     $cmd .= "--data-urlencode phone='$phoneNumber'";
+    $cmd .= " ";
     $cmd .= "--data-urlencode message='$message'";
+    $cmd .= " ";
     $cmd .= "-d key=20e7455c";
 
-    `$cmd`;
+    `{$cmd}`;
 }
 
 function isCOLAV(string $message): bool

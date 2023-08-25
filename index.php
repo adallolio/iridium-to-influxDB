@@ -34,16 +34,17 @@ if (DEBUG) {
     # Format XEOS: 02231300,P, 63.44151 10.34867 40 1431
 }
 
-#isset($json) && error_log("JSON:         {$json}");
-#isset($data) && error_log("Hex data:     {$data}");
-isset($message) && error_log("Message:      {$message}");
+if (isset($message)){
+    error_log("Message: '$message'");
+}
+
 //! Check if the received message is of (A) and trigger SMS notification to recipients.
 if (isCOLAV($message) || strpos($message, "\x03\x88") === 0) {
     exit("Alert or COLAV message received, terminating ..");
 }
 
 if (isAlert($message)) {
-    sendSMS("+4791536919", $message);
+    // sendSMS("+4791536919", $message);
     sendSMS("+4741308854", $message);
     return;
 }
